@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora Global Supply</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- SWIPER CAROUSEL -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- ICONOS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {margin:0;font-family:'Inter',sans-serif;background:#f9fafb;overflow-x:hidden;}
+
+        /* TOP BAR */
+        .topbar{
+            background:#683bbd;
+            color:#fff;
+            padding:10px 20px;
+            font-size:14px;
+            display:flex;
+            justify-content:space-between;
+        }
+
+        /* HEADER */
+        header {
+            position:relative;
+            box-sizing: border-box;
+            width:100%;
+            top:0;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:25px 50px;
+            background: #262626;
+            backdrop-filter: blur(10px);
+            transition:0.3s;
+            z-index:1000;
+            color:white;
+        }
+        header.shrink {position: sticky; padding:12px 50px;background:#262626;}
+        header.shrink .logo img { height:85px; transition: .3s }
+
+        .logo {display:flex;align-items:center;gap:10px;font-size:20px;font-weight:600;}
+        .logo i {color:#683bbd;}
+
+        nav {
+            display:flex;
+            align-items:center;
+            gap:20px;
+        }
+
+        nav a {
+            color:white;
+            text-decoration:none;
+            position:relative;
+        }
+
+        nav a::after {
+            content:"";
+            position:absolute;
+            bottom:-5px;
+            left:0;
+            width:0%;
+            height:2px;
+            background:#683bbd;
+            transition:0.3s;
+        }
+
+        nav a:hover::after {width:100%;}
+
+        /* SELECTOR DE IDIOMA */
+        .lang-selector {
+            position: relative;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+            padding: 5px 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .lang-selector:hover {
+            border-color: #683bbd;
+        }
+
+
+
+        /* OFFCANVAS SOLO MOVIL */
+        .menu-toggle {display:none;font-size:24px;cursor:pointer;}
+
+        .overlay {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);opacity:0;visibility:hidden;transition:0.3s;z-index:999;}
+        .overlay.active {opacity:1;visibility:visible;}
+
+        .sidebar {position:fixed;top:0;right:-320px;width:280px;height:100%;background:#0F172A;padding:40px 20px;transition:0.4s;z-index:1000;display:flex;flex-direction:column;box-sizing:border-box;}
+        .sidebar.active {right:0;}
+
+        .sidebar a {color:white;text-decoration:none;padding:15px 10px;display:flex;align-items:center;gap:12px;border-radius:8px;}
+        .sidebar a i {color:#683bbd;}
+        .sidebar a:hover {background:rgba(255,255,255,0.05);}
+
+        /* RESPONSIVE */
+        @media(max-width:768px){
+            nav {display:none;} /* ocultar menu desktop */
+            .menu-toggle {display:block;} /* mostrar hamburguesa */
+        }
+
+        /* Contenedor dentro del sidebar */
+        .sidebar-lang {
+            margin-top: auto; /* Empuja el selector al fondo del sidebar */
+            padding: 20px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-lang p {
+            color: white;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+
+
+
+        /* BANNER */
+        .swiper {
+            width: 100%;
+            height: 80vh; /* Ajusta la altura a tu gusto */
+        }
+
+        .swiper-slide {
+            position: relative;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .swiper-slide img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Para que la imagen no se deforme */
+        }
+
+        /* Estilo para tu contenido encima de la imagen */
+        .content {
+            position: absolute;
+            color: white;
+            background: rgba(0, 0, 0, 0.4); /* Fondo oscuro suave para leer mejor */
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Tamaño de la flecha interna */
+        .swiper-button-next:after, 
+        .swiper-button-prev:after {
+            font-size: 18px;                         /* Flecha más pequeña */
+            font-weight: bold;
+            color: #ffffff;                          /* Color de la flecha */
+        }
+
+        /* Efecto Hover */
+        .swiper-button-next:hover, 
+        .swiper-button-prev:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.1);
+        }
+
+        .swiper-button-next:hover:after, 
+        .swiper-button-prev:hover:after {
+            color: #000000;                          /* La flecha cambia a negro al pasar el mouse */
+        }
+
+        /* Estado inicial (Oculto y desplazado) */
+        .ani-title, .ani-text {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        /* Estado cuando el slide está activo (Aparece) */
+        .swiper-slide-active .ani-title {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.3s; /* El título sale primero */
+        }
+
+        .swiper-slide-active .ani-text {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.5s; /* El párrafo sale después */
+        }
+
+
+
+        /* SECCION   */
+        .about-section {
+            padding: 80px 10%; /* Espaciado superior e inferior */
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            display: flex;
+            align-items: center; /* Alinea texto e imagen al centro verticalmente */
+            gap: 40px;           /* Espacio entre columnas */
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Columna de Texto */
+        .about-text {
+            flex: 1; /* Toma el 50% del espacio */
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: #111;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        /* Lista con checks dorados */
+        .about-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .about-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .about-list li span {
+            color: #683bbd; /* Color dorado para el check */
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        /* Columna de Imagen */
+        .about-image {
+            flex: 1;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px; /* Un toque sutil en las esquinas */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Sombra elegante */
+        }
+
+        /* Estilo para el pie de sección */
+        .about-text-foot {
+            width: 100%;        /* Ocupa todo el ancho */
+            clear: both;        /* Limpia cualquier flotado previo */
+            margin-top: 60px;   /* Da espacio suficiente después de la imagen */
+            text-align: center; /* Centra el texto */
+            padding: 40px 0;    /* Espacio interno */
+        }
+
+        .about-text-foot p {
+            font-size: 1.1rem;
+            color: #555;
+            margin: 5px 0;
+            max-width: 85%;   /* Para que el texto no sea tan largo y sea fácil de leer */
+            margin-left: auto;  /* Centra el bloque del párrafo */
+            margin-right: auto;
+        }
+        /* Responsivo para móviles */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column; /* Apila uno sobre otro */
+                text-align: center;
+            }
+            
+            .about-list li {
+                justify-content: center;
+            }
+        }
+
+
+        .section {padding:80px 20px;text-align:center;opacity:0;transform:translateY(40px);transition:0.6s;}
+        .section.visible {opacity:1;transform:translateY(0);}
+
+        .servicios {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
+
+        .card {background:white;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.05);transition:0.3s;}
+        .card:hover {transform:translateY(-5px);}
+        .card i {font-size:40px;color:#683bbd;margin-bottom:10px;}
+
+        .clientes img {width:120px;margin:15px;filter:grayscale(100%);transition:0.3s;}
+        .clientes img:hover {filter:grayscale(0%);}
+
+        footer {background:#0F172A;color:white;padding:40px;text-align:center;}
+    </style>
+
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <span>123 Main Street, City</span>
+    <span>+1 (000) 000-0000</span>
+</div>
+
+<header id="header">
+    <div class="logo"><img src="logo_blanco.png" alt="Soluciones" height="110px" ></div>
+
+    <!-- MENU DESKTOP -->
+    <nav>
+        <a href="#banner">Inicio</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#clientes">Clientes</a>
+        <a href="#contacto">Contacto</a>
+
+        <div class="lang-selector lang">
+            <span class="active-lang"> <i class="fas fa-globe"></i> &nbsp; ES</span>
+        </div>
+
+    </nav>
+
+    <!-- HAMBURGUESA MOVIL -->
+    <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+</header>
+
+<!-- OVERLAY + SIDEBAR SOLO MOVIL -->
+<div class="overlay"></div>
+<div class="sidebar">
+    <a href="#banner"><i class="fas fa-home"></i>Inicio</a>
+    <a href="#servicios"><i class="fas fa-cogs"></i>Services</a>
+    <a href="#clientes"><i class="fas fa-building"></i>Customers</a>
+    <a href="#contacto"><i class="fas fa-envelope"></i>Contact Us</a>
+
+    <div class="sidebar-lang lang" >
+        <p><i class="fas fa-globe"></i> &nbsp; ES</p>
+    </div>
+</div>
+
+<section class="banner" id="banner">
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            
+            <div class="swiper-slide">
+                <img src="https://picsum.photos/1600/900?1" alt="Soluciones">
+                <div class="content">
+                    <h1 class="ani-title">Professional Solutions</h1>
+                    <p class="ani-text">We provide efficient and scalable business systems.</p>
+                </div>
+            </div>
+
+            <div class="swiper-slide">
+                <img src="https://picsum.photos/1600/900?2" alt="Calidad">
+                <div class="content">
+                    <h1>Guaranteed Quality</h1>
+                    <p>Reliable services with high performance standards.</p>
+                </div>
+            </div>
+
+            <div class="swiper-slide">
+                <img src="https://picsum.photos/1600/900?3" alt="Desarrollo">
+                <div class="content">
+                    <h1>Custom Development</h1>
+                    <p>Tailored solutions adapted to your business needs.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+
+        <div class="swiper-pagination"></div>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        
+        <div class="about-text">
+            <h2 class="section-title">Grow Your Business with AURORA GLOBAL SUPPLY</h2>
+            <p>Are you looking for a reliable way to access products from the U.S. and start growing your business?</p>
+            <p>This could be the starting point you’ve been waiting for.</p>
+            <p>At Aurora Global Supply, we are building a wholesale solution designed for entrepreneurs and businesses ready to take the next step with confidence and support.</p>
+            <p>We’ll show you how to:</p>
+
+            <ul class="about-list">
+                <li><span>✔</span> Access original products at competitive prices.</li>
+                <li><span>✔</span> Understand what you need to start buying wholesale.</li>
+                <li><span>✔</span> Receive clear guidance to make better decisions from the beginning.</li>
+            </ul>
+        </div>
+
+        <div class="about-image">
+            <img src="manos.png" alt="Partnership and Logistics">
+        </div>
+
+    </div>
+
+    <div class="about-text-foot">
+        <p>More than a supplier, we aim to become your partner in this growth journey.</p>
+        <p><b>Schedule a call with us and discover how to get started.</b></p>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        
+        <div class="about-image">
+            <img src="newprov.png" alt="Partnership and Logistics">
+        </div>
+
+        <div class="about-text">
+            <h2 class="section-title">We are more than a supplier. <br>We are building something greater: a partner you can trust.</h2>
+            <p>At Aurora Global Supply, we work to provide you with access to quality products from the U.S., with a clear focus on helping you grow step by step.</p>
+            <p>We want to support you in supplying your business across Latin America and the Caribbean with a simple, transparent, and reliable approach:</p>
+
+            <ul class="about-list">
+                <li><span>✔</span> Competitive pricing designed to help you grow.</li>
+                <li><span>✔</span> Access to recognized brands and high-demand products.</li>
+                <li><span>✔</span> Personalized support and guidance at every stage.</li>
+                <li><span>✔</span> A committed team focused on doing things right from the start.</li>
+            </ul>
+        </div>
+
+
+    </div>
+
+    <div class="about-text-foot">
+        <p>We believe in building long-term relationships based on trust, responsibility, and results.</p>
+        <p><b>Aurora Global Supply — growing with you from the very first step.</b></p>
+    </div>
+</section>
+
+<section class="section" id="servicios">
+<h2>Servicios</h2>
+<div class="servicios" id="serviciosContainer"></div>
+</section>
+
+<section class="section clientes" id="clientes">
+<h2>Clientes</h2>
+<div id="clientesContainer"></div>
+</section>
+
+<section class="section" id="contacto">
+<h2>Contacto</h2>
+</section>
+
+<footer>
+<p>Copyright © 2026 AuroraGlobalSupply.com. All Rights Reserved</p>
+</footer>
+
+<script>
+$(document).ready(function() {
+    // MENU MOVIL
+    $('.menu-toggle').click(function(){
+        $('.sidebar').addClass('active');
+        $('.overlay').addClass('active');
+    });
+
+    $('.overlay').click(function(){
+        $('.sidebar').removeClass('active');
+        $('.overlay').removeClass('active');
+    });
+
+    // HEADER SHRINK
+    $(window).on('scroll',function(){
+        if($(this).scrollTop()>37){
+            $('#header').addClass('shrink');
+        }else{
+            $('#header').removeClass('shrink');
+        }
+    });
+
+    $(".lang").click(function() {
+        window.location.href = "../es/";
+    });
+
+    // CAROUSEL
+    /*let images=[
+     'https://picsum.photos/1920/1080?1',
+     'https://picsum.photos/1920/1080?2'
+    ];
+    let i=0;
+    function slider(){
+     $('#banner').css('background-image','url('+images[i]+')');
+     i=(i+1)%images.length;
+    }
+    setInterval(slider,4000);
+    slider();*/
+
+    // SCROLL ANIMACIONES
+    function reveal(){
+     $('.section').each(function(){
+       let top=$(this).offset().top;
+       let scroll=$(window).scrollTop();
+       let h=$(window).height();
+       if(scroll+h>top+100){$(this).addClass('visible');}
+     });
+    }
+    $(window).on('scroll',reveal);
+    reveal();
+
+    // DATOS
+    function cargarServicios(){
+     let data=[
+      {icon:'fa-cogs',titulo:'Soporte Técnico'},
+      {icon:'fa-truck',titulo:'Distribución'},
+      {icon:'fa-tools',titulo:'Mantenimiento'}
+     ];
+     data.forEach(s=>{
+       $('#serviciosContainer').append(`
+       <div class="card">
+         <i class="fas ${s.icon}"></i>
+         <h3>${s.titulo}</h3>
+       </div>`);
+     });
+    }
+
+    /*function cargarClientes(){
+     let data=['https://via.placeholder.com/120','https://via.placeholder.com/120'];
+     data.forEach(c=>{
+       $('#clientesContainer').append(`<img src="${c}">`);
+     });
+    }*/
+
+    cargarServicios();
+    //cargarClientes();
+
+});
+
+const swiper = new Swiper(".mySwiper", {
+    loop: true,             // Infinito
+    effect: "fade",         // Efecto de transición (puedes quitarlo para "slide")
+    fadeEffect: {
+        crossFade: true
+    },
+    autoplay: {
+        delay: 5000,        // Cambia cada 5 segundos
+        disableOnInteraction: false,
+    },
+    pagination: {
+        el: ".swiper-pagination",
+        clickable: true,    // Que los puntitos funcionen al click
+    },
+    navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+    },
+});
+</script>
+
+</body>
+</html>
